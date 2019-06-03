@@ -1,0 +1,87 @@
+---
+title: "Assignment04"
+author: "Saloni Bhatia"
+date: "June 2, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q1 - Harry Potter Cast
+
+a. In the IMDB, there are listings of full cast members for movies. Navigate to http://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1. Feel free to View Source to get a good idea of what the page looks like in code. .
+
+
+```{r}
+
+library(XML) #xml_Parse
+library(dplyr)
+library(tidyr)
+library(stringi)
+library(rvest) #html_table, html_node
+library(ggplot2)
+library(RCurl)
+
+#Scraping XML
+
+#Basics
+
+
+#1A / 1B
+hp<-read_html("http://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1")
+hp_table<-html_nodes(hp,"table")
+derp<-html_table(hp_table)
+
+
+```
+
+b. Scrape the page with any R package that makes things easy for you. Of particular interest is the table of the Cast in order of crediting. Please scrape this table (you might have to fish it out of several of the tables from the page) and make it a data.frame() of the Cast in your R environment 
+
+```{r}
+#Scraping XML
+
+#Basics
+
+
+#1A / 1B
+hp<-read_html("http://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1")
+hp_table<-html_nodes(hp,"table")
+derp<-html_table(hp_table)
+
+# Find the right table
+derp[3]
+
+```
+c. Clean up the table 
+It should not have blank observations or rows, a row that should be column names, or just '.' It should have intuitive column names (ideally 2 to start - Actor and Character) 
+In the film, Mr. Warwick plays two characters, which makes his row look a little weird. Please replace his character column with just "Griphook / Professor Filius Flitwick" to make it look better. 
+One row might result in "Rest of cast listed alphabetically" - remove this observation. 
+
+```{r}
+#1C - Cleaning
+a<-data.frame(derp[3])
+names(a) <- c("Blank", "Actor", "Blank2","Character")
+df<-a[2:length(a$Actor),c("Actor", "Character")]
+
+df
+df$Character[10] <- "Griphook / Professor Filius Flitwick"
+df
+
+```
+	d. Split the Actor's name into two columns: FirstName and Surname. Keep in mind that some actors/actresses have middle names as well. Please make sure that the middle names are in the FirstName column, in addition to the first name (example: given the Actor Frank Jeffrey Stevenson, the FirstName column would say "Frank Jeffrey.") 
+	
+```{r}
+# 1D -Edit The Cast List
+b<-df %>%
+  slice(-92) %>% # Removes the row that is just noting the rest is alphabetical
+  separate(Actor, into=c("FirstNames", "Surname"), sep="[ ](?=[^ ]+$)") # Separates the Last Name
+b
+
+```
+	e. Present the first 10 rows of the data.frame() - It should have only FirstName, Surname, and Character columns. 
+```{r}
+#1E 
+head(b, 10)
+```

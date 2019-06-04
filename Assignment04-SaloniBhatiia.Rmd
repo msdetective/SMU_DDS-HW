@@ -75,7 +75,7 @@ df
 # 1D -Edit The Cast List
 b<-df %>%
   slice(-92) %>% # Removes the row that is just noting the rest is alphabetical
-  separate(Actor, into=c("FirstNames", "Surname"), sep="[ ](?=[^ ]+$)") # Separates the Last Name
+  separate(Actor, into=c("FirstName", "Surname"), sep="[ ](?=[^ ]+$)") # Separates the Last Name
 b
 
 ```
@@ -111,18 +111,21 @@ Rost1 = Sports_dfs[[2]]
 Rost2 = Sports_dfs[[8]]
 
 # 2c -Edit The NAme
-#Rost1 %>% separate(Name, into=c("FirstName", "Lastname", "Position")) # Separates the Position
+#Rost1 %>% separate(Name, into=c("Name", "Position")) # Separates the Position
 
 
 ShootingStats = cbind(Rost1,Rost2)
+ShootingStats
+#SS <- stri_sub(ShootingStats, -2, -2)
 
-SS <-ShootingStats %>% separate(Name, into=c("FirstName", "LastName", "Position")) # Separates the Position
+SS <-ShootingStats %>% separate(Name, into=c("FirstName","LastName" ,"Position"), extra="merge") # Separates the Position
 
 SS <- SS %>%
-  slice(-14)
+slice(-14)
 
-ShootingStats
 SS
+
+
 
 ```
 
@@ -134,7 +137,13 @@ d. Create a colorful bar chart that shows the Field Goals Percentage Per Game fo
 ```{r}
 library(ggplot2)
 
-SS %>% ggplot(aes(y=FGA, x=FirstName), fill=Position )+geom_bar(stat="identity")+ xlab("Field Goal Percentage") +ylab("Player")+ggtitle("Field Goals Percentage Per Game ")+coord_flip()
+colnames(SS)[colnames(SS)=="FG%"] <- "FGPer"
 
+##SS <- sapply(SS, as.numeric())
+
+
+SS %>% ggplot(aes(x=FirstName,y=FGA, fill=Position))+geom_bar(stat="identity")+ xlab("Field Goal Percentage") +ylab("Player")+ggtitle("Field Goals Percentage Per Game ")+coord_flip()+ geom_col()
+
+SS %>% ggplot(aes(x=FirstName,y=FGA, fill=Position))+geom_bar(stat="identity")+ xlab("Player") +ylab("Field Goal Percentage")+ggtitle("Field Goals Percentage Per Person ")+ theme(plot.title = element_text(hjust = 0.5))+ geom_col() +coord_flip()
 ```
 

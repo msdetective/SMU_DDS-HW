@@ -34,7 +34,6 @@ hp<-read_html("http://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1")
 hp_table<-html_nodes(hp,"table")
 derp<-html_table(hp_table)
 
-
 ```
 
 b. Scrape the page with any R package that makes things easy for you. Of particular interest is the table of the Cast in order of crediting. Please scrape this table (you might have to fish it out of several of the tables from the page) and make it a data.frame() of the Cast in your R environment 
@@ -107,18 +106,23 @@ c. Clean up the table (You might get some warnings if you're working with tibble
 	. Check the data type of all columns. Convert relevant columns to numeric. Check the data type of all columns again to confirm that they have changed! 
 
 ```{r}
+Rost1 = Sports_dfs[[2]]
 
-Rost1 = Sports_dfs[[6]]
+Rost2 = Sports_dfs[[8]]
 
-Rost1
-
-
-# 1D -Edit The NAme
-Rost1 %>% separate(Name, into=c("FirstName", "Lastname", "Position")) # Separates the Position
-
-Rost1
+# 2c -Edit The NAme
+#Rost1 %>% separate(Name, into=c("FirstName", "Lastname", "Position")) # Separates the Position
 
 
+ShootingStats = cbind(Rost1,Rost2)
+
+SS <-ShootingStats %>% separate(Name, into=c("FirstName", "LastName", "Position")) # Separates the Position
+
+SS <- SS %>%
+  slice(-14)
+
+ShootingStats
+SS
 
 ```
 
@@ -127,4 +131,10 @@ d. Create a colorful bar chart that shows the Field Goals Percentage Per Game fo
 	. Human-readable axes with no overlap (you might have to flip x and y to fix that). Note: You do not have to convert the decimal to a percentage. 
 	. Color the columns by the team member's position (so, all PF's should have the same color, etc.) 
 
+```{r}
+library(ggplot2)
+
+SS %>% ggplot(aes(y=FGA, x=FirstName), fill=Position )+geom_bar(stat="identity")+ xlab("Field Goal Percentage") +ylab("Player")+ggtitle("Field Goals Percentage Per Game ")+coord_flip()
+
+```
 

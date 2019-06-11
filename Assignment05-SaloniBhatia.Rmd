@@ -1,0 +1,106 @@
+---
+title: "Assignment05-SaloniBhatia"
+author: "Saloni Bhatia"
+date: "June 09, 2019"
+output: html_document
+---
+
+#### Q1 - Utilize yob2016.txt for this question. This file is a series of popular children's names born in the year 2016 in the United States.  It consists of three columns with a first name, a gender, and the amount of children given that name.  However, the data is raw and will need cleaning to make it tidy and usable.
+
+```{r}
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("tidyr")
+library(dplyr) 
+````
+
+### 1a - First, import the .txt file into R so you can process it.  Keep in mind this is not a CSV file.  You might have to open the file to see what you're dealing with.  Assign the resulting data frame to an object, df, that consists of three columns with human-readable column names for each.
+
+
+
+```{r}
+
+#1a
+babynames <- read.delim2(file="yob2016.txt", sep=';', head = FALSE)
+babynames
+head(babynames, 10)
+names(babynames) <- c('Name', 'Gender', 'TotalKids2016')
+head(babynames, 10)
+#1b
+summary(babynames)
+dim(babynames)
+#1c
+duprow = grep(pattern = "yyy$", x = babynames$Name, value = TRUE)
+grep(pattern = "yyy$", x = babynames$Name)
+babynames[212, ]
+#1d
+babynames[210:214, ]
+names2016 <- slice(babynames, -212)
+names2016[210:214, ]
+
+```
+
+## 2.	Data Merging (30 points): Utilize yob2015.txt for this question.  This file is similar to yob2016, but contains names, gender, and total children given that name for the year 2015.
+```{r}
+#2a - please import the yob2015.txt file into R  
+names2015 <- read.delim2("yob2015.txt", header = FALSE, sep = ",")
+class(names2015)
+dim(names2015)
+head(names2015)
+colnames(names2015) <- c("Name", "Gender", "TotalKids2015")
+head(names2015)
+#2b - Last 10 names
+tail(names2015, 10)
+
+#2 b - Interesting facts about these last ten rows is all these kids are boy names and there are exactly 5 kids with the same name. Additionally, all these names start with Z.
+
+#2c - Merge two year kids names list
+str(names2015)
+str(names2016)
+
+names2015[ , 1] <- as.character(names2015[, 1])
+names2016[ , 1] <- as.character(names2016[, 1])
+names2015[ , 2] <- as.character(names2015[, 2])
+names2016[ , 2] <- as.character(names2016[, 2])
+
+str(names2015)
+str(names2016)
+
+# Names that exsits in both the years are merged and NA are removed
+Names <- merge(x = names2015, y = names2016, by = c("Name", "Gender"))
+head(Names,10)
+
+any(is.na(Names))
+Names
+
+```
+
+##Q3 	Data Summary (30 points): Utilize your data frame object final for this part.
+
+```{r}
+
+
+Names$Total <- Names$TotalKids2016 +  Names$TotalKids2015
+#3 a totalkids
+Names
+
+
+#head(Names, 10)
+
+Namessorted <-  Names[order(-Names$Total),]
+# 3 b 10 most popular names 
+head(Namessorted, 10)
+
+#3 c - 10 most popular girl names
+GirlNames <- Namessorted[Namessorted$Gender != "M", ]
+Mostpopulargirlnames <- head(GirlNames, 10)
+
+Mostpopulargirlnames <- head(GirlNames, 10)
+Mostpopulargirlnames
+
+#3 d - Write the Top 10 popular names list on the file
+write.csv(select(Mostpopulargirlnames, Name, Total), file = "Mostpopulargirlnames.csv", row.names = FALSE)
+```  
+
+
+##Q4 	4.	Upload to GitHub 

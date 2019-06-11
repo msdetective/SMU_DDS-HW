@@ -1,0 +1,45 @@
+Context: Your client is expecting a baby soon.  However, he is not sure what to name the child.  Being out of the loop, he hires you to help him figure out popular names.  He provides for you raw data in order to help you make a decision.
+
+
+
+Input Files and data set provided:
+
+- yob2015.txt
+
+- yob2016.txt
+
+
+
+To complete this assignment, performed following process:
+
+1. Data Munging - Process where input files are read and data is cleaned up.
+
+2. Data Merging - Process where the clean data or transformed data is merged in order to achieve desired outcome
+
+3. Data Summary - Process where the data is summarized and shared with the client in form of a txt file.
+
+
+
+Key Data frames:
+
+babynames: Baby names data from yob2016.txt files
+
+names2016: Cleaned up data for babynames
+
+names2015: Cleaned up data for babynames read from yob2015.txt
+
+Names: Merged data set from 2015 and 2016 years where names exists in both the years(TotalKids2015 + TotalKids2016)
+
+Namessorted: Sorted Total kids count descending in the column "Total" 
+
+Mostpopulargirlnames: Final data set asked by the client
+
+
+
+Files:
+
+yob2015.txt: This file is a series of kids names born in the year 2015 in the United States.
+
+yob2016.txt: This file is a series of kids names born in the year 2016 in the United States.
+
+Mostpopulargirlnames.csv: Final data set asked by the client to display 10 most popular gilrs names

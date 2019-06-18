@@ -22,7 +22,7 @@ library(dplyr)
 
 #1a
 babynames <- read.delim2(file="yob2016.txt", sep=';', head = FALSE)
-babynames
+
 head(babynames, 10)
 names(babynames) <- c('Name', 'Gender', 'TotalKids2016')
 head(babynames, 10)
@@ -71,7 +71,7 @@ Names <- merge(x = names2015, y = names2016, by = c("Name", "Gender"))
 head(Names,10)
 
 any(is.na(Names))
-Names
+#Names
 
 ```
 
@@ -82,7 +82,7 @@ Names
 
 Names$Total <- Names$TotalKids2016 +  Names$TotalKids2015
 #3 a totalkids
-Names
+#Names
 
 
 #head(Names, 10)
@@ -104,3 +104,5 @@ write.csv(select(Mostpopulargirlnames, Name, Total), file = "Mostpopulargirlname
 
 
 ##Q4 	4.	Upload to GitHub 
+
+https://github.com/msdetective/SMU_DDS-HW 

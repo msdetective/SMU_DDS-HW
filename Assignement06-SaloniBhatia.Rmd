@@ -1,0 +1,112 @@
+---
+title: "Unit6"
+author: "Saloni Bhatia"
+date: "June 17, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q1 - Mental Health Clinics 
+
+	a. This data set is a survey of every known healthcare facility that offers mental health services in the United States in 2015. Navigate to https://datafiles.samhsa.gov/study-dataset/national-mental-health-services-survey-2015-n-mhss-2015-ds0001-nid17098 and select the R download. Look through the codebook PDF for an explanation on certain variables. Upon opening the RDA file, the data set should be inserted into your global environment, which you can then reference. 
+	Solution  - Downloaded the file from the website in .RDA format, and opened the file in Rstudio in the global environment.
+	
+
+```{r}
+c<-load("C:/SMU/DoingDatascience/Unit6/N-MHSS-2015-DS0001-data/N-MHSS-2015-DS0001-data-r.rda")
+c 
+#head(mh2015_puf)
+class(mh2015_puf$FACILITYTYPE)
+#df <- read.csv("C:/SMU/DoingDatascience/Unit6/N-MHSS-2015-DS0001-data-excel.csv")
+#str(df)
+#summary(df)
+```
+
+	
+	b. Please create code which lists the State abbreviations without their counts, one abbreviation per State value. It does not have to be in data frame format. A vector is fine. 
+
+```{r}
+States <- as.vector(unique(mh2015_puf$LST))
+States
+```
+	c. Filter the data.frame from 1A. We are only interested in the Veterans Administration (VA) medical centers in the mainland United States-create a listing of counts of these centers by state, including only mainland locations. Alaska, Hawaii, and U.S. territories should be omitted. DC, while not a state, is in the mainland, so it should remain included. Convert this to data.frame() 
+	
+Steps
+1) Itentified vector value  "Veterans Administration medical center (VAMC) or other VA health care" and filtered on vector indexed at 10
+2) Created a new data frame nonusterettories to exclude from the US mainland teritories
+3) Wrote a Trim function to trim the spaces after LST
+4) Filter out the centers wiht VA and non us terettories 
+5) Aggregate the VA Center counts by States
+
+```{r}
+library(dplyr)
+FacilityTypes <- as.vector(unique(mh2015_puf$FACILITYTYPE))
+#S <- subset(mh2015_puf, mh2015_puf$FACILITYTYPE =='6'  )
+#AK <- mh2015_puf %>% filter(mh2015_puf$LST=="AK")
+#head(AK)
+nonustereitories <- c("HI", "AK","PR","GU", "VI", "AS", "FM", "MP","MH","PW" )
+trim <- function (x) gsub("^\\s+|\\s+$", "", x) 
+VA_centers <- mh2015_puf %>% filter(!(trim(mh2015_puf$LST) %in% nonustereitories) & mh2015_puf$FACILITYTYPE ==FacilityTypes[10])
+VA_centerscount <-as.data.frame(VA_centers %>% count(LST))
+names(VA_centerscount) <- c("States", "Total")
+
+VA_centerscount
+
+```
+d. Create a ggplot barchart of this filtered data set. Vary the bar's colors by what State it has listed. Give it an appropriately professional title that is centered. Make sure you have informative axis labels. The State axis should be readable, not layered over each other. You're welcome to have a legend or not. 
+
+```{r}
+library(ggplot2)
+ggplot(VA_centerscount, aes(x=States, y=Total, fill=States)) + ggtitle("Total VA Centers per state") + xlab("Abbreviated States") + ylab("Number of VA Centers per state")+ geom_bar(stat="identity")+ geom_col() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
+```
+## Q2 Cleaning and Bringing in New Features 
+
+a. This graph (1D) might be somewhat misleading, as bigger states may have more hospitals, but could be more sparsely located. Read statesize.csv into your R environment. This contains essentially a vector of square miles for each state. In trying to merge it with your data.frame() from 1C, you find that they don't match. Use paste() on your LST column in 1C to see what the matter is, and write what you observe in a comment. 
+
+```{r}
+statesize <- read.csv("C:/SMU/DoingDatascience/Unit6/statesize.csv")
+str(statesize) #checking the structure before merging the file
+str(VA_centerscount)
+paste(VA_centerscount$States) #Due to extra spaces, it will not match
+
+```
+	b. Correct the problem with the LST column using any method in R that is programmatic and easily understandable. Once you have made these state abbreviations identical to statesize.csv's Abbrev column, merge the data.frame() from 1C and statesize.csv in order to add size information. 
+	
+```{r}
+VA_centerscount$States <- trim(VA_centerscount$States)
+VA_centerscount$States
+colnames(statesize) <- c("StateNames", "SqMiles", "States", "Region")
+str(statesize) 
+str(VA_centerscount)
+
+Mergeddataset <- merge(x = statesize, y = VA_centerscount, by = "States")
+head(Mergeddataset)
+```
+
+	c. Calculate a new variable in your combined data.frame() which indicates the VA hospitals per thousand square miles. 
+	
+```{r}
+Mergeddataset["VAperSM"] <- Mergeddataset$Total / (Mergeddataset$SqMiles / 1000)
+head(Mergeddataset)
+```
+	d. Create another ggplot which considers the VAs per square thousand miles, rather than just frequency. . Make sure the State axis is readable, like before. Change the title and axes as appropriate. 
+	. Modify the ggplot syntax to make your bars in descending order (there are StackOverflow topics for this, and I have demonstrated how in Live Coding in prior classes). 
+	. Color-code the bars based on Region (see the merged data.frame)-however, change the color scheme from the default. Any set of colors is fine, so long as it is readable. 
+	. Keep the legend-you should have four regions and therefore four colors. 
+	
+```{r}
+
+redshades <- c("#cd0000", "#dc4c4c", "#e67f7f", "#f0b2b2")
+ggplot(Mergeddataset, aes(x= reorder(States, VAperSM), y=VAperSM, fill=Region)) + ggtitle("Total VA centers per 1000 sq. miles in each state") + xlab("States Abbreviated") + ylab("VA centers per 1000 sq. miles")+ geom_bar(stat="identity")+ geom_col() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6)) + 
+scale_fill_manual(values = redshades) +
+coord_flip()
+```
+	
+	
+	
+		e. What patterns do you see? By this metric, is there any region that seems relatively high for VA medical centers per thousand square miles? How about low? Given these data, what advice might you give your boss before you start modeling (and why)? 
+
+Solution - Based on the graphical representation of the merged dataset, total number of Veterans centers in Northeast are the highest followed by Midwest. However, total centers in West seems to be the lowest. Recommendation will be to expand to areas where there are minimum centers. Also can compare the spread amongst other facility types to check if there are any similar or different patterns.
